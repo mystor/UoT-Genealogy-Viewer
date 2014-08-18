@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ person.name }} - UoT CS Genealogy{% endblock %}
+
+{% block body %}
+<h1>{{ person.name }}</h1>
+<h2>{{ person.school}} - {{ person.year }}</h2>
+<h3>Advisors</h3>
+<ul class="advisors">
+  {% for advisor in person.advisors %}
+  <li class="advisor"><a href="{{ url_for('person', person_id=advisor.id) }}">{{ advisor.name }}</a></li>
+  {% else %}
+  <li class="missing">
+    The database doesn't have any advisors recorded. <br>
+    If you know the advisor for {{ person.name }}, please let us know!
+  </li>
+  {% endfor %}
+</ul>
+<h3>Students</h3>
+{% if person.students %}
+<table class="students">
+  <tr>
+    <th>Name</th>
+    <th>School</th>
+    <th>Year</th>
+  </tr>
+  {% for student in person.students %}
+  <tr class="student">
+    <td><a href="{{ url_for('person', person_id=student.id) }}">{{ student.name }}</a></td>
+    <td>{{ student.school }}</td>
+    <td>{{ student.year }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="missing">
+  It doesn't look like {{ person.name }} had any students. <br>
+  If you have any corrections, please let us know!
+</p>
+{% endif %}
+
+{% endblock %}

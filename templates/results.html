@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}Search Results - UoT CS Genealogy{% endblock %}
+
+{% block body %}
+<h1>UoT CS Genealogy</h1>
+
+<h2>Search the Database</h2>
+<form action="{{ url_for('search') }}" method="get">
+  <input type="text" name="q" class="search-box" placeholder="LastName, FirstName">
+  <button type="submit" class="submit-button">Search</button>
+</form>
+
+<h2>Results</h2>
+{% if people %}
+<table class="results">
+  <tr>
+    <th>Name</th>
+    <th>School</th>
+    <th>Year</th>
+  <tr>
+  {% for person in people %}
+  <tr class="result">
+    <td><a href="{{ url_for('person', person_id=person.id) }}">{{ person.name }}</a></td>
+    <td>{{ person.school }}</td>
+    <td>{{ person.year }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="missing">
+  There were no results for your query {{ query }}. Try another?
+</p>
+{% endif %}
+
+{% endblock %}

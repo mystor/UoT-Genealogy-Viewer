@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block title %}UoT CS Genealogy{% endblock %}
+
+{% block body %}
+<h1>UoT CS Genealogy</h1>
+
+<h2>Search the Database</h2>
+<form action="{{ url_for('search') }}" method="get">
+  <input type="text" name="q" class="search-box" placeholder="LastName, FirstName">
+  <button type="submit" class="submit-button">Search</button>
+</form>
+
+{% endblock %}
