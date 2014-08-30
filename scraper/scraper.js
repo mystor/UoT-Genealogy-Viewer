@@ -16,7 +16,7 @@ scraper = (function() {
     var page = webpage.create();
     return search.perform(
       page,
-      'su(computer science) AND sch(university of toronto)',
+      'su(computer science) AND sch(university of toronto) AND degree(Ph.D.)',
       function(err, res) {
         if (err) return callback(err);
 
@@ -29,7 +29,7 @@ scraper = (function() {
     var page = webpage.create();
     return search.perform(
       page,
-      'su(computer science) AND adv(' + advisor + ')',
+      'su(computer science) AND adv(' + advisor + ') AND degree(Ph.D.)',
       function(err, res) {
         if (err) return callback(err);
 

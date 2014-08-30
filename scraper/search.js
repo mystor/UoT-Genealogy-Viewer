@@ -42,8 +42,9 @@ search = (function() {
   }
 
   function attachCallbacks(page) {
-    page.settings.resourceTimeout = 12000;
+    page.settings.resourceTimeout = 5000;
     page.isLoading = false;
+    page.isReloading = false;
 
     page.onConsoleMessage = function(message) {
       console.log(message);
@@ -55,9 +56,16 @@ search = (function() {
 
     page.onLoadFinished = function(status) {
       if (status === 'fail') {
-        blowUp('Page failed to load');
+        if (page.isReloading) {
+          blowUp('Page failed to load');
+        } else {
+          page.isReloading = true;
+          page.reload();
+          return;
+        }
       }
 
+      page.isReloading = false;
       page.isLoading = false;
     };
 
@@ -175,6 +183,30 @@ search = (function() {
 
       return result;
     });
+
+    if (typeof result.Author === 'undefined') {
+      var wrongPage = page.evaluate(function() {
+        var correctPageLink = document.querySelector('.format_abstract');
+
+        if (correctPageLink) {
+          doClick(correctPageLink);
+          return true;
+        } else {
+          return false;
+        }
+      });
+
+      if (wrongPage) {
+        console.log('On wrong page, redirecting to correct page');
+        waitForLoad(page, function() {
+          readAllData(page, results, callback);
+        });
+      } else {
+        blowUp(results, page);
+      }
+
+      return;
+    }
 
     console.log('Read ' + result.Author);
 
