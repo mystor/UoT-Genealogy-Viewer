@@ -1,6 +1,11 @@
+var system = require('system');
+
 // Ensure async is avaliable
 if (typeof async === 'undefined')
   phantom.injectJs('async.js');
+
+if (typeof blowUp === 'undefined')
+  phantom.injectJs('error.js');
 
 search = (function() {
   var search = {};
@@ -36,12 +41,45 @@ search = (function() {
     });
   }
 
+  function attachCallbacks(page) {
+    page.settings.resourceTimeout = 12000;
+    page.isLoading = false;
+
+    page.onConsoleMessage = function(message) {
+      console.log(message);
+    };
+
+    page.onError = function(error) {
+      console.error(error);
+    };
+
+    page.onLoadFinished = function(status) {
+      if (status === 'fail') {
+        blowUp('Page failed to load');
+      }
+
+      page.isLoading = false;
+    };
+
+    page.onLoadStarted = function() {
+      page.isLoading = true;
+    };
+  }
   // Calls the callback `callback` once the page has loaded
   function waitForLoad(page, callback) {
-    page.onLoadFinished = function() {
-      page.onLoadFinished = undefined;
-      callback();
-    };
+    console.log('waiting for load');
+
+    var i = 0;
+    system.stdout.write('');
+    var interval = setInterval(function() {
+      system.stdout.write('\r' + i++);
+      // console.log(i++);
+      if (! page.isLoading) {
+        console.log('load finished');
+        callback();
+        clearInterval(interval);
+      }
+    }, 100);
   }
 
   //////////////////////////////////////////
@@ -67,22 +105,21 @@ search = (function() {
       function(callback) {
         // Go to the abstract page
         if (goAbstractPage(page)) {
-          waitForLoad(page, callback);
-        } else {
-          callback(new Error('no results')); // Escape from the program - there are no results
-        }
-      },
+          waitForLoad(page, function(err) {
+            if (err) blowUp(err);
 
-      function(callback) {
-        // Read in all of the data from every abstract page
-        readAllData(page, results, callback);
+            readAllData(page, results, callback);
+          });
+        } else {
+          callback(); // Escape from the program - there are no results
+        }
       }
     ], function(err) {
-      if (err) return callback(err);
+      if (err) blowUp(err);
 
       console.log('Got ' + results.length + ' results!');
 
-      return callback(null, results);
+      callback(null, results);
     });
   }
 
@@ -156,9 +193,9 @@ search = (function() {
 
     if (canNavigate) {
       waitForLoad(page, function(err) {
-        if (err) return callback(err);
+        if (err) blowUp(err);
 
-        return readAllData(page, results, callback);
+        readAllData(page, results, callback);
       });
     } else {
       callback();
@@ -172,6 +209,8 @@ search = (function() {
   // Navigates to the search page, performs a search request,
   // and then retrieves all data from the results
   function performSearch(page, query, callback) {
+    attachCallbacks(page);
+
     console.log('Performing Query: ' + query);
     page.open('http://search.proquest.com', function(status) {
       injectClickFunction(page);
@@ -198,7 +237,7 @@ search = (function() {
 
       if (success) {
         waitForLoad(page, function(err) {
-          if (err) return callback(err);
+          if (err) blowUp(err);
 
           return getResults(page, callback);
         });
