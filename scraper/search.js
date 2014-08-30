@@ -1,5 +1,5 @@
 // Ensure async is avaliable
-if (! async)
+if (typeof async === 'undefined')
   phantom.injectJs('async.js');
 
 search = (function() {

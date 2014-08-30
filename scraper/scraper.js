@@ -3,10 +3,10 @@
 // Dependencies
 var webpage = require('webpage');
 
-if (! async)
+if (typeof async === 'undefined')
   phantom.injectJs('async.js');
 
-if (! search)
+if (typeof search === 'undefined')
   phantom.injectJs('search.js');
 
 scraper = (function() {

@@ -1,6 +1,6 @@
 var fs = require('fs');
 
-if (! scraper)
+if (typeof scraper === 'undefined')
   phantom.injectJs('scraper.js');
 
 var initial = JSON.parse(fs.read('initial.json'));

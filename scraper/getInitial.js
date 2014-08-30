@@ -1,6 +1,6 @@
 var fs = require('fs');
 
-if (! scraper)
+if (typeof scraper === 'undefined')
   phantom.injectJs('scraper.js');
 
 scraper.initialSet(function(err, initial) {
