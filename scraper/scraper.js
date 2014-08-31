@@ -43,8 +43,11 @@ scraper = (function() {
     var db = {};
 
     function worker(task, callback) {
-      if (db.hasOwnProperty(task.Author))
+      console.log('Task being run');
+      if (db.hasOwnProperty(task.Author)) {
+        console.log('Author already registered');
         return callback();
+      }
 
       db[task.Author] = task; // Record that this person is being worked on
 
@@ -67,7 +70,7 @@ scraper = (function() {
           queue.push(child);
         });
 
-        return undefined;
+        return callback();
       });
     }
 
