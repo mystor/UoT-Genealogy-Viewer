@@ -70,6 +70,8 @@ scraper = (function() {
           queue.push(child);
         });
 
+        console.log(JSON.stringify(db[task.Author]));
+
         return callback();
       });
     }

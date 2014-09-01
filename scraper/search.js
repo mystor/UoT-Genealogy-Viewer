@@ -44,7 +44,7 @@ search = (function() {
   function attachCallbacks(page) {
     page.settings.resourceTimeout = 5000;
     page.isLoading = false;
-    page.isReloading = false;
+    page.isReloading = 0;
 
     page.onConsoleMessage = function(message) {
       console.log(message);
@@ -56,16 +56,17 @@ search = (function() {
 
     page.onLoadFinished = function(status) {
       if (status === 'fail') {
-        if (page.isReloading) {
-          blowUp('Page failed to load');
+        if (page.isReloading >= 10) {
+          page.render('error.png');
+          console.log('!!!!Page failed to load!!!');
         } else {
-          page.isReloading = true;
+          page.isReloading++;
           page.reload();
           return;
         }
       }
 
-      page.isReloading = false;
+      page.isReloading = 0;
       page.isLoading = false;
     };
 
@@ -135,9 +136,14 @@ search = (function() {
   // and navigate to it if we aren't
   // Returns true if navigation has occured
   function goCorrectTab(page) {
+    injectClickFunction(page);
     return page.evaluate(function() {
-      // TODO: Implement
-      return false;
+      var allResultsLink = document.querySelector('#allResults a');
+      if (! allResultsLink)
+        return false;
+
+      doClick(allResultsLink);
+      return true;
     });
   }
 

@@ -14,19 +14,16 @@ def import_data():
 
     # Create the person objects
     for item in data.values():
-        p = Person(item['author'], item['school'], item.get('year', 'Unknown'))
-        people[item['author']] = p
+        p = Person(item['Author'], item['University/institution'], int(item['Degree date']))
+        people[item['Author']] = p
         db.session.add(p)
 
     # Create the associations
     for item in data.values():
-        person = people[item['author']]
-
-        for student in item['students']:
-            if (student in people and                                   # Person exists
-                item['author'] != student and                           # Not the same person
-                item.get('year', 0) < data[student].get('year', 3000)): # PhD at the time
-                person.students.append(people[student])
+        person = people[item['Author']]
+        advisor = people.get(item.get('Advisor', ''), None)
+        if advisor != None:
+            advisor.students.append(person)
 
     db.session.commit()
 
